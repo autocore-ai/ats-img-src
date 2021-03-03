@@ -1,0 +1,45 @@
+name: AutowareArchitectureProposal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ros2:
+    runs-on: ubuntu-20.04
+    container: ros:foxy
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ github.repository_owner }}/${ env.GITHUB_WORKFLOW }
+        ref: ${{ github.job }}
+
+    - name: Setup ROS
+      uses: ros-tooling/setup-ros@master
+
+    - name: Get Source Code
+      run: mkdir src && vcs import src < autoware.proj.repos
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: autoware-architecture-proposal_ros2
+        path: .
+
+  ros2_release:
+    needs: [ros2]
+    runs-on: ubuntu-20.04
+    env:
+      REPO: https://github.com/${{ github.repository }}
+      IMG_SRC: ghcr.io/${{ github.repository_owner }}/autoware-architecture-proposal:ros2
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: autoware-architecture-proposal_ros2
+        path: .
+
+    - name: Debug
+      run: docker ps -a && ls -al
