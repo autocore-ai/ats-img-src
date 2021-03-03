@@ -9,7 +9,6 @@ env:
 jobs:
   ros2:
     runs-on: ubuntu-20.04
-    container: ros:foxy
 
     steps:
     - name: Checkout
